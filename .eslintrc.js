@@ -15,6 +15,9 @@ module.exports =  {
     "ecmaVersion": 2018
   },
   "rules": {
-    "no-console": 1
+    "no-console": 1,
+    "consistent-return": 0,
+    "func-names": 0,
+    "global-require": 0
   }
 };
