@@ -1,6 +1,6 @@
 const logger = require('./logger');
 
-const errorHandler = (error, request, response, next) => {
+const errorHandler = (error, request, response) => {
   logger.error(`Encountered error. ${error}`);
 
   return response.status(500).send({
