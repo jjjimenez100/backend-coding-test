@@ -1,0 +1,217 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Backend API for rides",
+    "version": "1.0.0",
+    "title": "Rides",
+    "contact": {
+      "email": "jimenez.johnjoshua.jjj@gmail.com"
+    }
+  },
+  "definitions": {
+    "RideOutput": {
+      "type": "object",
+      "required": [
+        "startLat",
+        "startLong",
+        "endLat",
+        "endLong",
+        "riderName",
+        "driverName",
+        "driverVehicle"
+      ],
+      "properties": {
+        "rideID": {
+          "type": "integer",
+          "example": 1
+        },
+        "startLat": {
+          "type": "integer",
+          "minimum": -90,
+          "maximum": 90,
+          "example": 90
+        },
+        "startLong": {
+          "type": "integer",
+          "minimum": -180,
+          "maximum": 180,
+          "example": 180
+        },
+        "endLat": {
+          "type": "integer",
+          "minimum": -90,
+          "maximum": 90,
+          "example": -90
+        },
+        "endLong": {
+          "type": "integer",
+          "minimum": -180,
+          "maximum": 180,
+          "example": -180
+        },
+        "riderName": {
+          "type": "string",
+          "example": "Joshua"
+        },
+        "driverName": {
+          "type": "string",
+          "example": "John"
+        },
+        "driverVehicle": {
+          "type": "string",
+          "example": "Truck"
+        },
+        "created": {
+          "type": "string",
+          "example": "2020-10-27 13:23:33"
+        }
+      }
+    },
+    "RideInput": {
+      "type": "object",
+      "required": [
+        "start_lat",
+        "start_long",
+        "end_lat",
+        "end_long",
+        "rider_name",
+        "driver_name",
+        "driver_vehicle"
+      ],
+      "properties": {
+        "start_lat": {
+          "type": "integer",
+          "minimum": -90,
+          "maximum": 90,
+          "example": 90
+        },
+        "start_long": {
+          "type": "integer",
+          "minimum": -180,
+          "maximum": 180,
+          "example": 180
+        },
+        "end_lat": {
+          "type": "integer",
+          "minimum": -90,
+          "maximum": 90,
+          "example": -90
+        },
+        "end_long": {
+          "type": "integer",
+          "minimum": -180,
+          "maximum": 180,
+          "example": -180
+        },
+        "rider_name": {
+          "type": "string",
+          "example": "Joshua"
+        },
+        "driver_name": {
+          "type": "string",
+          "example": "John"
+        },
+        "driver_vehicle": {
+          "type": "string",
+          "example": "Truck"
+        }
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check endpoint for the server",
+        "description": "Checks if the server is running",
+        "operationId": "healthcheck",
+        "responses": {
+          "200": {
+            "description": "Server is up and running"
+          }
+        }
+      }
+    },
+
+    "/rides": {
+      "get": {
+        "summary": "Get all saved rides",
+        "description": "Get all saved rides",
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "getRides",
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RideOutput"
+              }
+            },
+            "description": "Successful operation"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new ride",
+        "description": "Add a new ride",
+        "operationId": "addRide",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Rider object that needs to be added",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RideInput"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully added new ride"
+          }
+        }
+      }
+    },
+
+    "/rides/{rideId}": {
+      "get": {
+        "summary": "Get saved ride by id",
+        "description": "Get saved ride by id",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "rideId",
+            "in": "path",
+            "description": "ID of ride to return",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "operationId": "getRideById",
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RideOutput"
+              }
+            },
+            "description": "Successful operation"
+          }
+        }
+      }
+    }
+  },
+  "host": "localhost:8010",
+  "basePath": "/"
+}
