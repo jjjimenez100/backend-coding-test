@@ -1,3 +1,7 @@
+# nyc
+.nyc_output/
+coverage/
+
 # Intellij based ides
 .idea/
 

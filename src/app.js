@@ -9,12 +9,14 @@ const jsonParser = bodyParser.json();
 const swaggerUI = require('swagger-ui-express');
 const swaggerFile = require('./resources/api-v1-swagger.json');
 
+const { errorHandler } = require('./lib/errorHandler');
+
 module.exports = (db) => {
     app.get('/health', (req, res) => res.send('Healthy'));
 
     app.use('/api-documentation/v1', swaggerUI.serve, swaggerUI.setup(swaggerFile));
 
-    app.post('/rides', jsonParser, (req, res) => {
+    app.post('/rides', jsonParser, (req, res, next) => {
         const startLatitude = Number(req.body.start_lat);
         const startLongitude = Number(req.body.start_long);
         const endLatitude = Number(req.body.end_lat);
@@ -62,32 +64,21 @@ module.exports = (db) => {
         
         const result = db.run('INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)', values, function (err) {
             if (err) {
-                return res.send({
-                    error_code: 'SERVER_ERROR',
-                    message: 'Unknown error'
-                });
+                return next(err);
             }
-
             db.all('SELECT * FROM Rides WHERE rideID = ?', this.lastID, function (err, rows) {
                 if (err) {
-                    return res.send({
-                        error_code: 'SERVER_ERROR',
-                        message: 'Unknown error'
-                    });
+                    return next(err);
                 }
-
                 res.send(rows);
             });
         });
     });
 
-    app.get('/rides', (req, res) => {
+    app.get('/rides', (req, res, next) => {
         db.all('SELECT * FROM Rides', function (err, rows) {
             if (err) {
-                return res.send({
-                    error_code: 'SERVER_ERROR',
-                    message: 'Unknown error'
-                });
+                return next(err);
             }
 
             if (rows.length === 0) {
@@ -101,13 +92,10 @@ module.exports = (db) => {
         });
     });
 
-    app.get('/rides/:id', (req, res) => {
+    app.get('/rides/:id', (req, res, next) => {
         db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, function (err, rows) {
             if (err) {
-                return res.send({
-                    error_code: 'SERVER_ERROR',
-                    message: 'Unknown error'
-                });
+                return next(err);
             }
 
             if (rows.length === 0) {
@@ -120,6 +108,8 @@ module.exports = (db) => {
             res.send(rows);
         });
     });
+
+    app.use(errorHandler);
 
     return app;
 };
