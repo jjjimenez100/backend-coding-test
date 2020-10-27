@@ -1,0 +1,4 @@
+tests/
+scripts/
+.eslintrc.js
+nyc.config.js
