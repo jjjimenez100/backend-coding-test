@@ -9,6 +9,56 @@
     }
   },
   "definitions": {
+    "PaginatedRideOutput": {
+      "type": "object",
+      "required": [
+        "next",
+        "previous",
+        "totalCount",
+        "results"
+      ],
+      "properties": {
+        "next": {
+          "type": "string",
+          "example": "/rides?page=3&limit=3"
+        },
+        "previous": {
+          "type": "string",
+          "example": "/rides?page=2&limit=3"
+        },
+        "totalCount": {
+          "type": "integer",
+          "example": 10
+        },
+        "results": {
+          "type": "array",
+          "example": [
+            {
+              "rideID": 4,
+              "startLat": 12,
+              "startLong": 14,
+              "endLat": 19,
+              "endLong": 19,
+              "riderName": "Joshua",
+              "driverName": "John",
+              "driverVehicle": "Truck",
+              "created": "2020-10-28 15:01:11"
+            },
+            {
+              "rideID": 5,
+              "startLat": 12,
+              "startLong": 14,
+              "endLat": 19,
+              "endLong": 19,
+              "riderName": "Joshua",
+              "driverName": "John",
+              "driverVehicle": "Truck",
+              "created": "2020-10-28 15:01:11"
+            }
+          ]
+        }
+      }
+    },
     "RideOutput": {
       "type": "object",
       "required": [
@@ -163,10 +213,7 @@
         "responses": {
           "200": {
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/RideOutput"
-              }
+              "$ref": "#/definitions/PaginatedRideOutput"
             },
             "description": "Successful operation"
           }
