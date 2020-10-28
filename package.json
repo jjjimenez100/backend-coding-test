@@ -8,8 +8,9 @@
   },
   "scripts": {
     "test": "npm run lint && nyc mocha tests",
-    "start": "node index.js",
-    "lint": "eslint --fix src/"
+    "start": "nodemon index.js",
+    "lint": "eslint --fix src/",
+    "test:load": "artillery run load-test.yml"
   },
   "keywords": [
     "Xendit"
@@ -28,11 +29,13 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "artillery": "^1.6.1",
     "eslint": "^7.2.0",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-plugin-import": "^2.22.1",
     "husky": "^4.3.0",
     "mocha": "^6.1.4",
+    "nodemon": "^2.0.6",
     "nyc": "^15.1.0",
     "sinon": "^9.2.1",
     "supertest": "^4.0.2"
