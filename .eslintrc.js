@@ -18,6 +18,7 @@ module.exports =  {
     "no-console": 1,
     "consistent-return": 0,
     "func-names": 0,
-    "global-require": 0
+    "global-require": 0,
+    "no-restricted-globals": 0
   }
 };

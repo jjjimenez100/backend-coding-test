@@ -89,19 +89,46 @@ module.exports = (db) => {
   });
 
   app.get('/rides', (req, res, next) => {
-    db.all('SELECT * FROM Rides', (err, rows) => {
+    const { page = 1, limit = 10 } = req.query;
+    if (isNaN(page) || page < 1 || isNaN(limit) || limit < 1) {
+      return res.send({
+        error_code: 'INVALID_PAGINATION_VALUES',
+        message: 'Pagination values should be a number and not be less than 1',
+      });
+    }
+
+    const offset = (page - 1) * limit;
+    const parsedPage = Number(page);
+    const nextUrl = `/rides?page=${parsedPage + 1}&limit=${limit}`;
+    const previousUrl = parsedPage === 1 ? null : `/rides?page=${parsedPage - 1}&limit=${limit}`;
+
+    db.all('SELECT * FROM Rides LIMIT ? OFFSET ?', [limit, offset], (err, rideEntities) => {
       if (err) {
         return next(err);
       }
 
-      if (rows.length === 0) {
+      if (rideEntities.length === 0) {
         return res.send({
           error_code: 'RIDES_NOT_FOUND_ERROR',
           message: 'Could not find any rides',
         });
       }
 
-      res.send(rows);
+      db.all('SELECT COUNT(*) as count FROM Rides', (countError, rows) => {
+        if (countError) {
+          return next(countError);
+        }
+
+        const totalCount = rows[0].count;
+        const hasNextPage = (page * limit) <= totalCount;
+        const response = {
+          next: hasNextPage ? nextUrl : null,
+          previous: previousUrl,
+          totalCount: rows[0].count,
+          results: rideEntities,
+        };
+        res.send(response);
+      });
     });
   });
 
