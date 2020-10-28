@@ -3,8 +3,9 @@ const express = require('express');
 const app = express();
 
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
 
-const jsonParser = bodyParser.json();
+const jsonParser = bodyParser.json({ limit: '2kb' });
 
 const swaggerUI = require('swagger-ui-express');
 const swaggerFile = require('./resources/api-v1-swagger.json');
@@ -19,6 +20,8 @@ module.exports = (db) => {
   // Manually inject instances
   const repository = new RideRepository(db, RideEntity, selectQuery, insertQuery);
   const controller = new RideController(repository);
+
+  app.use(helmet());
 
   app.get('/health', (req, res) => res.send('Healthy'));
 

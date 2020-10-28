@@ -5,7 +5,7 @@ const {
 } = require('winston');
 const path = require('path');
 
-const LOGGING_LEVEL = 'error';
+const LOGGING_LEVEL = 'info';
 const logger = createLogger({
   level: LOGGING_LEVEL,
   format: format.combine(
@@ -18,12 +18,13 @@ const logger = createLogger({
   ),
   transports: [
     new transports.File({
+      level: LOGGING_LEVEL,
       filename: 'rider-api.log',
       handleExceptions: true,
       format: format.combine(
         format.colorize(),
         format.printf(
-          (info) => `${info.timestamp} ${LOGGING_LEVEL} [${info.label}]: ${info.message}`,
+          (info) => `${info.timestamp} ${info.level} [${info.label}]: ${info.message}`,
         ),
       ),
     }),
