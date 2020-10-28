@@ -216,6 +216,9 @@
               "$ref": "#/definitions/PaginatedRideOutput"
             },
             "description": "Successful operation"
+          },
+          "400": {
+            "description": "Validation error, check that page and limit are numeric values"
           }
         }
       },
@@ -243,6 +246,9 @@
         "responses": {
           "200": {
             "description": "Successfully added new ride"
+          },
+          "400": {
+            "description": "Validation error, check that required fields are present"
           }
         }
       }
@@ -274,6 +280,9 @@
               }
             },
             "description": "Successful operation"
+          },
+          "400": {
+            "description": "Validation error, check that id parameter is numeric and greater than 0"
           }
         }
       }
