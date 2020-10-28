@@ -9,6 +9,8 @@ const jsonParser = bodyParser.json();
 const swaggerUI = require('swagger-ui-express');
 const swaggerFile = require('./resources/api-v1-swagger.json');
 
+const { selectQuery, insertQuery } = require('./lib/databaseQuery');
+
 const { errorHandler } = require('./lib/errorHandler');
 
 module.exports = (db) => {
@@ -16,7 +18,7 @@ module.exports = (db) => {
 
   app.use('/api-documentation/v1', swaggerUI.serve, swaggerUI.setup(swaggerFile));
 
-  app.post('/rides', jsonParser, (req, res, next) => {
+  app.post('/rides', jsonParser, async (req, res, next) => {
     const startLatitude = Number(req.body.start_lat);
     const startLongitude = Number(req.body.start_long);
     const endLatitude = Number(req.body.end_lat);
@@ -65,30 +67,32 @@ module.exports = (db) => {
       });
     }
 
-    const values = [
-      req.body.start_lat,
-      req.body.start_long,
-      req.body.end_lat,
-      req.body.end_long,
-      req.body.rider_name,
-      req.body.driver_name,
-      req.body.driver_vehicle,
-    ];
+    try {
+      const insertRideQuery = `
+        INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
+      const insertRideValues = [
+        req.body.start_lat,
+        req.body.start_long,
+        req.body.end_lat,
+        req.body.end_long,
+        req.body.rider_name,
+        req.body.driver_name,
+        req.body.driver_vehicle,
+      ];
+      const insertId = await insertQuery(db, insertRideQuery, insertRideValues);
 
-    db.run('INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)', values, function (insertErr) {
-      if (insertErr) {
-        return next(insertErr);
-      }
-      db.all('SELECT * FROM Rides WHERE rideID = ?', this.lastID, (selectErr, rows) => {
-        if (selectErr) {
-          return next(selectErr);
-        }
-        res.send(rows);
-      });
-    });
+      const selectRideByIdQuery = 'SELECT * FROM Rides WHERE rideID = ?';
+      const selectRideByIdValues = [insertId];
+      const { results } = await selectQuery(db, selectRideByIdQuery, selectRideByIdValues);
+      res.send(results);
+    } catch (err) {
+      next(err);
+    }
   });
 
-  app.get('/rides', (req, res, next) => {
+  app.get('/rides', async (req, res, next) => {
     const { page = 1, limit = 10 } = req.query;
     if (isNaN(page) || page < 1 || isNaN(limit) || limit < 1) {
       return res.send({
@@ -101,52 +105,62 @@ module.exports = (db) => {
     const parsedPage = Number(page);
     const nextUrl = `/rides?page=${parsedPage + 1}&limit=${limit}`;
     const previousUrl = parsedPage === 1 ? null : `/rides?page=${parsedPage - 1}&limit=${limit}`;
+    try {
+      const selectRidesQuery = 'SELECT * FROM Rides LIMIT ? OFFSET ?';
+      const selectRidesValues = [limit, offset];
+      const {
+        results,
+      } = await selectQuery(db, selectRidesQuery, selectRidesValues);
 
-    db.all('SELECT * FROM Rides LIMIT ? OFFSET ?', [limit, offset], (err, rideEntities) => {
-      if (err) {
-        return next(err);
-      }
-
-      if (rideEntities.length === 0) {
+      if (results.length === 0) {
         return res.send({
           error_code: 'RIDES_NOT_FOUND_ERROR',
           message: 'Could not find any rides',
         });
       }
 
-      db.all('SELECT COUNT(*) as count FROM Rides', (countError, rows) => {
-        if (countError) {
-          return next(countError);
-        }
+      const countRidesQuery = 'SELECT COUNT(*) as count FROM Rides';
+      const { results: countResult } = await selectQuery(db, countRidesQuery);
+      const [{ count: totalCount }] = countResult;
 
-        const totalCount = rows[0].count;
-        const hasNextPage = (page * limit) <= totalCount;
-        const response = {
-          next: hasNextPage ? nextUrl : null,
-          previous: previousUrl,
-          totalCount: rows[0].count,
-          results: rideEntities,
-        };
-        res.send(response);
-      });
-    });
+      const hasNextPage = (page * limit) <= totalCount;
+      const response = {
+        next: hasNextPage ? nextUrl : null,
+        previous: previousUrl,
+        totalCount,
+        results,
+      };
+      res.send(response);
+    } catch (err) {
+      next(err);
+    }
   });
 
-  app.get('/rides/:id', (req, res, next) => {
-    db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, (err, rows) => {
-      if (err) {
-        return next(err);
-      }
+  app.get('/rides/:id', async (req, res, next) => {
+    const { id } = req.params;
+    if (isNaN(id) || id < 0) {
+      return res.status(400).send({
+        error_code: 'INVALID_ID_PROVIDED',
+        message: 'ID should be a positive number greater than 0',
+      });
+    }
 
-      if (rows.length === 0) {
+    try {
+      const selectRideByIdQuery = 'SELECT * FROM Rides WHERE rideID = ?';
+      const selectRideByIdValues = [id];
+      const { results } = await selectQuery(db, selectRideByIdQuery, selectRideByIdValues);
+
+      if (results.length === 0) {
         return res.send({
           error_code: 'RIDES_NOT_FOUND_ERROR',
           message: 'Could not find any rides',
         });
       }
 
-      res.send(rows);
-    });
+      res.send(results);
+    } catch (err) {
+      next(err);
+    }
   });
 
   app.use(errorHandler);

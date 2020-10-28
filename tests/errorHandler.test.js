@@ -1,17 +1,6 @@
 const { errorHandler } = require('../src/lib/errorHandler');
 const assert = require('assert');
-
-class DummyResponse {
-  constructor() { }
-  status(code = 200) {
-    this.code = code;
-    return this;
-  }
-  send(body = {}) {
-    this.body = body;
-    return this;
-  }
-}
+const DummyResponse = require('./DummyResponse');
 
 describe('Custom error handler test', () => {
   it('should call DummyResponse with status code of 500 and server error' +

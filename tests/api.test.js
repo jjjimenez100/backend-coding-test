@@ -8,6 +8,9 @@ const db = new sqlite3.Database(':memory:');
 
 const app = require('../src/app')(db);
 const buildSchemas = require('../src/schemas');
+const {
+  insertQuery, deleteQuery, updateQuery,
+} = require('../src/lib/databaseQuery');
 
 const faker = require('faker');
 
@@ -86,31 +89,24 @@ describe('API tests', () => {
     // Size of generated ride entities
     const size = 15;
 
-    beforeEach((done) => {
-      db.parallelize((err) => {
-        if (err) {
-          return done(err);
-        }
-        db.run('DELETE FROM Rides');
+    beforeEach(async () => {
+      const deleteRidesQuery = 'DELETE FROM Rides';
+      await deleteQuery(db, deleteRidesQuery);
 
-        const placeholder = '(?, ?, ?, ?, ?, ?, ?)';
-        const placeholders = new Array(size).fill(placeholder).join(', ');
-        const insertQuery = `
-          INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) 
+      const updateRidesIdSeqQuery = 'UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE' +
+          ' NAME=\'Rides\'';
+      await updateQuery(db, updateRidesIdSeqQuery);
+
+      const placeholder = '(?, ?, ?, ?, ?, ?, ?)';
+      const placeholders = new Array(size).fill(placeholder).join(', ');
+      const insertRideQuery = `
+          INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle)
           VALUES ${placeholders};
         `
-
-        rideEntities = generateRandomRideEntities(size);
-        const placeHolderValues = rideEntities.map(riderEntity => Object.values(riderEntity));
-        const flattenedPlaceholderValues = [].concat(...placeHolderValues);
-
-        db.run(insertQuery, flattenedPlaceholderValues, () => {
-          db.run('UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE' +
-              ' NAME=\'Rides\';\n', () => {
-            done();
-          });
-        });
-      });
+      rideEntities = generateRandomRideEntities(size);
+      const placeHolderValues = rideEntities.map(riderEntity => Object.values(riderEntity));
+      const flattenedPlaceholderValues = [].concat(...placeHolderValues);
+      await insertQuery(db, insertRideQuery, flattenedPlaceholderValues);
     });
 
     describe('GET /rides', () => {
