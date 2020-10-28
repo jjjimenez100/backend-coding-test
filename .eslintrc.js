@@ -21,5 +21,6 @@ module.exports =  {
     "global-require": 0,
     "no-restricted-globals": 0,
     "no-underscore-dangle": 0,
+    "prefer-arrow-callback": 0,
   }
 };

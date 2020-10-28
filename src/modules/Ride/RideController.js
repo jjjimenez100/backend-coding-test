@@ -9,13 +9,13 @@ class RideController {
 
   async getRides(req, res, next) {
     const { page = 1, limit = 10 } = req.query;
-    if (page && !isInteger(page, { min: 1 })) {
+    if (page && !isInteger(`${page}`, { min: 1 })) {
       return res.status(HttpStatusCodes.BAD_REQUEST).send({
         message: 'Page should be a number greater than 1',
       });
     }
 
-    if (limit && !isInteger(limit, { min: 1 })) {
+    if (limit && !isInteger(`${limit}`, { min: 1 })) {
       return res.status(HttpStatusCodes.BAD_REQUEST).send({
         message: 'Limit should be a number greater than 1',
       });
@@ -64,7 +64,7 @@ class RideController {
       'driver_vehicle',
     ];
     const missingStringProperty = stringPropertiesToCheck.find(
-      (propertyToCheck) => isEmpty(req.body[propertyToCheck] || ''),
+      (propertyToCheck) => isEmpty(req.body[propertyToCheck] ? `${req.body[propertyToCheck]}` : ''),
     );
 
     if (missingStringProperty) {
