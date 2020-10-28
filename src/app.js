@@ -21,11 +21,11 @@ module.exports = (db) => {
   const repository = new RideRepository(db, RideEntity, selectQuery, insertQuery);
   const controller = new RideController(repository);
 
+  app.use(helmet());
+
   app.get('/health', (req, res) => res.send('Healthy'));
 
   app.use('/api-documentation/v1', swaggerUI.serve, swaggerUI.setup(swaggerFile));
-
-  app.use(helmet());
 
   app.post('/rides', jsonParser, function (req, res, next) {
     controller.postRide(req, res, next);

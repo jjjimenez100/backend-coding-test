@@ -111,6 +111,24 @@ describe('API tests', () => {
     });
 
     describe('GET /rides', () => {
+      it('should return a response with pre-set headers from helmet',
+          (done) => {
+            request(app).
+                get('/rides').
+                expect('Content-Type', /json/).
+                expect(200).
+                expect('X-DNS-Prefetch-Control', 'off').
+                expect('Expect-CT', 'max-age=0').
+                expect('X-Download-Options', 'noopen').
+                expect('X-Content-Type-Options', 'nosniff').
+                expect('X-XSS-Protection', '0').
+                expect('Content-Security-Policy', 'default-src' +
+                    ' \'self\';base-uri' +
+                    ' \'self\';block-all-mixed-content;font-src \'self\'' +
+                    ' https: data:;frame-ancestors \'self\';img-src \'self\' data:;object-src \'none\';script-src \'self\';script-src-attr \'none\';style-src \'self\' https: \'unsafe-inline\';upgrade-insecure-requests',
+                    done);
+          });
+
       it('should return exactly 10 rides given no limit query parameter',
           (done) => {
             const limit = 10;
@@ -223,6 +241,23 @@ describe('API tests', () => {
     });
 
     describe('GET /rides/${id}', () => {
+      it('should return a response with pre-set headers from helmet',
+          (done) => {
+            request(app).
+                get('/rides/2').
+                expect('Content-Type', /json/).
+                expect(200).
+                expect('X-DNS-Prefetch-Control', 'off').
+                expect('Expect-CT', 'max-age=0').
+                expect('X-Download-Options', 'noopen').
+                expect('X-Content-Type-Options', 'nosniff').
+                expect('X-XSS-Protection', '0').
+                expect('Content-Security-Policy', 'default-src' +
+                    ' \'self\';base-uri' +
+                    ' \'self\';block-all-mixed-content;font-src \'self\'' +
+                    ' https: data:;frame-ancestors \'self\';img-src \'self\' data:;object-src \'none\';script-src \'self\';script-src-attr \'none\';style-src \'self\' https: \'unsafe-inline\';upgrade-insecure-requests',
+                    done);
+          });
       it('should return ride id of 2', (done) => {
         request(app).
             get('/rides/2').
@@ -236,6 +271,26 @@ describe('API tests', () => {
     });
 
     describe('POST /rides', () => {
+      it('should return a response with pre-set headers from helmet',
+          (done) => {
+            const body = rideEntities[2];
+            request(app).
+                post('/rides').
+                send(body).
+                expect('Content-Type', /json/).
+                expect(200).
+                expect('X-DNS-Prefetch-Control', 'off').
+                expect('Expect-CT', 'max-age=0').
+                expect('X-Download-Options', 'noopen').
+                expect('X-Content-Type-Options', 'nosniff').
+                expect('X-XSS-Protection', '0').
+                expect('Content-Security-Policy', 'default-src' +
+                    ' \'self\';base-uri' +
+                    ' \'self\';block-all-mixed-content;font-src \'self\'' +
+                    ' https: data:;frame-ancestors \'self\';img-src \'self\' data:;object-src \'none\';script-src \'self\';script-src-attr \'none\';style-src \'self\' https: \'unsafe-inline\';upgrade-insecure-requests',
+                    done);
+          });
+
       it('should create a new ride', (done) => {
         const body = rideEntities[2];
         request(app).
