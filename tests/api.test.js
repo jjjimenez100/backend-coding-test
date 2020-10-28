@@ -121,8 +121,11 @@ describe('API tests', () => {
             expect('Content-Type', /json/).
             expect(200).
             expect(response => {
-              assert.strictEqual(response.body.length, limit);
-              assertRideEntities(rideEntities.slice(0, limit), response.body);
+              assert.strictEqual(response.body.results.length, limit);
+              assert.strictEqual(response.body.next, '/rides?page=2&limit=10');
+              assert.strictEqual(response.body.previous, null);
+              assert.strictEqual(response.body.totalCount, size);
+              assertRideEntities(rideEntities.slice(0, limit), response.body.results);
             })
             .end(done);
       });
@@ -135,8 +138,11 @@ describe('API tests', () => {
             expect('Content-Type', /json/).
             expect(200).
             expect(response => {
-              assert.strictEqual(response.body.length, limit);
-              assertRideEntities(rideEntities.slice(0, limit), response.body);
+              assert.strictEqual(response.body.results.length, limit);
+              assert.strictEqual(response.body.next, '/rides?page=2&limit=2');
+              assert.strictEqual(response.body.previous, null);
+              assert.strictEqual(response.body.totalCount, size);
+              assertRideEntities(rideEntities.slice(0, limit), response.body.results);
             })
             .end(done);
       });
@@ -152,8 +158,11 @@ describe('API tests', () => {
             expect('Content-Type', /json/).
             expect(200).
             expect(response => {
-              assert.strictEqual(response.body.length, 3);
-              assertRideEntities(rideEntities.slice(12, size), response.body);
+              assert.strictEqual(response.body.results.length, 3);
+              assert.strictEqual(response.body.next, null);
+              assert.strictEqual(response.body.previous, '/rides?page=2&limit=6');
+              assert.strictEqual(response.body.totalCount, size);
+              assertRideEntities(rideEntities.slice(12, size), response.body.results);
             })
             .end(done);
       });
