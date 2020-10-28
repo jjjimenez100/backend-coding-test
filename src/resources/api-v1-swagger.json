@@ -140,6 +140,26 @@
           "application/json"
         ],
         "operationId": "getRides",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number to return",
+            "required": false,
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of entries to return per page",
+            "required": false,
+            "type": "integer",
+            "minimum": 1,
+            "default": 10
+          }
+        ],
         "responses": {
           "200": {
             "schema": {

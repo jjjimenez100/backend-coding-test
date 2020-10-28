@@ -89,7 +89,16 @@ module.exports = (db) => {
   });
 
   app.get('/rides', (req, res, next) => {
-    db.all('SELECT * FROM Rides', (err, rows) => {
+    const { page = 1, limit = 10 } = req.query;
+    if (isNaN(page) || page < 1 || isNaN(limit) || limit < 1) {
+      return res.send({
+        error_code: 'INVALID_PAGINATION_VALUES',
+        message: 'Pagination values should be a number and not be less than 1',
+      });
+    }
+
+    const offset = (page - 1) * limit;
+    db.all('SELECT * FROM Rides LIMIT ? OFFSET ?', [limit, offset], (err, rows) => {
       if (err) {
         return next(err);
       }
