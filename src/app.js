@@ -3,8 +3,9 @@ const express = require('express');
 const app = express();
 
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
 
-const jsonParser = bodyParser.json();
+const jsonParser = bodyParser.json({ limit: '2kb' });
 
 const swaggerUI = require('swagger-ui-express');
 const swaggerFile = require('./resources/api-v1-swagger.json');
@@ -23,6 +24,8 @@ module.exports = (db) => {
   app.get('/health', (req, res) => res.send('Healthy'));
 
   app.use('/api-documentation/v1', swaggerUI.serve, swaggerUI.setup(swaggerFile));
+
+  app.use(helmet());
 
   app.post('/rides', jsonParser, function (req, res, next) {
     controller.postRide(req, res, next);
